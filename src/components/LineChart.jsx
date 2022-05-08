@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import { AxisBottom, AxisLeft, AxisRight } from "./Chart";
-import { Card, CardContent, Grid } from "@mui/material";
+import { AxisBottom, AxisLeft, AxisRight, ColorLegend } from "./Chart";
+import { Card, CardContent, Grid, Stack } from "@mui/material";
 import { FileContentContext, SecondAxisContext } from "../store/stores";
 
 const width = 960;
@@ -222,78 +222,110 @@ function LineChart() {
     getY1,
   ]);
 
+  // Handle event when the user click the legend
+  const handleLegendOnCLick = (_, domain) => {
+    const selectedInPrimary = primaryAxisData.filter((d) => d.id === domain);
+    const selectedInSecondary = secondaryAxisData.filter(
+      (d) => d.id === domain
+    );
+
+    selectedInPrimary.length
+      ? setSelectedPrimaryData(selectedInPrimary)
+      : setSelectedPrimaryData([]);
+    selectedInSecondary.length
+      ? setSelectedSecondaryData(selectedInSecondary)
+      : setSelectedSecondaryData([]);
+  };
+
   return (
     <Grid container spacing={2}>
-      <Card>
-        <CardContent>
-          <svg
-            viewBox={`0 0 ${innerWidth + margin.left + margin.right} 
+      <Grid item xs={10}>
+        <Card>
+          <CardContent>
+            <svg
+              viewBox={`0 0 ${innerWidth + margin.left + margin.right} 
             ${innerHeight + margin.top + margin.bottom}`}
-          >
-            <g transform={`translate(${margin.right},${margin.top})`}>
-              <AxisBottom
-                xScale={getX}
-                innerHeight={innerHeight}
-                innerWidth={innerWidth}
-                tickFormat={xAxisTickFormat}
-                tickOffset={10}
-              />
-              <text
-                className="axis-label"
-                x={innerWidth / 2}
-                y={innerHeight + xAxisLabelOffset}
-                textAnchor="middle"
-              >
-                X Axis
-              </text>
-              <AxisLeft
-                yScale={getY0}
-                innerWidth={innerWidth}
-                tickOffset={10}
-              />
-              <text
-                className="axis-label"
-                textAnchor="middle"
-                transform={`translate(${-yAxisLabelOffset},${
-                  innerHeight / 2
-                }) rotate(-90)`}
-              >
-                Y Axis
-              </text>
+            >
+              <g transform={`translate(${margin.right},${margin.top})`}>
+                <AxisBottom
+                  xScale={getX}
+                  innerHeight={innerHeight}
+                  innerWidth={innerWidth}
+                  tickFormat={xAxisTickFormat}
+                  tickOffset={10}
+                />
+                <text
+                  className="axis-label"
+                  x={innerWidth / 2}
+                  y={innerHeight + xAxisLabelOffset}
+                  textAnchor="middle"
+                >
+                  X Axis
+                </text>
+                <AxisLeft
+                  yScale={getY0}
+                  innerWidth={innerWidth}
+                  tickOffset={10}
+                />
+                <text
+                  className="axis-label"
+                  textAnchor="middle"
+                  transform={`translate(${-yAxisLabelOffset},${
+                    innerHeight / 2
+                  }) rotate(-90)`}
+                >
+                  Y Axis
+                </text>
 
-              {showSecondAxis && (
-                <>
-                  <AxisRight
-                    yScale={getY1}
-                    innerWidth={innerWidth}
-                    tickOffset={10}
-                  />
-                  <text
-                    className="axis-label"
-                    textAnchor="middle"
-                    transform={`translate(${innerWidth + yAxisLabelOffset},${
-                      innerHeight / 2
-                    }) rotate(90)`}
-                  >
-                    Secondary Axis
-                  </text>
-                </>
-              )}
+                {showSecondAxis && (
+                  <>
+                    <AxisRight
+                      yScale={getY1}
+                      innerWidth={innerWidth}
+                      tickOffset={10}
+                    />
+                    <text
+                      className="axis-label"
+                      textAnchor="middle"
+                      transform={`translate(${innerWidth + yAxisLabelOffset},${
+                        innerHeight / 2
+                      }) rotate(90)`}
+                    >
+                      Secondary Axis
+                    </text>
+                  </>
+                )}
 
-              <defs>
-                <clipPath id="clip">
-                  <rect x={0} y={0} width={innerWidth} height={innerHeight} />
-                </clipPath>
-              </defs>
+                <defs>
+                  <clipPath id="clip">
+                    <rect x={0} y={0} width={innerWidth} height={innerHeight} />
+                  </clipPath>
+                </defs>
 
-              <g ref={pathPrimaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
-            </g>
-          </svg>
-        </CardContent>
-      </Card>
+                <g ref={pathPrimaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
+              </g>
+            </svg>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={2}>
+        <Stack spacing={2}>
+          <ColorLegend
+            tickSize={25}
+            colorScale={color}
+            onSelected={handleLegendOnCLick}
+            selectedPrimayData={
+              selectedPrimayData.length && selectedPrimayData[0].id
+            }
+            selectedSecondaryData={
+              selectedSecondaryData.length && selectedSecondaryData[0].id
+            }
+          />
+        </Stack>
+      </Grid>
     </Grid>
   );
 }
