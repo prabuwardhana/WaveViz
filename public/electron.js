@@ -7,6 +7,7 @@ const fileUrl = require("url").format({
   slashes: true,
   pathname: path.join(__dirname, "../build/index.html"),
 });
+const Store = require("./store.js");
 
 // Global
 let mainWindow;
@@ -46,13 +47,40 @@ const getFileFromUser = async () => {
   return content;
 };
 
+const store = new Store({
+  configName: "chart-settings",
+  defaults: {
+    dateFomat: "",
+    yAxis: { yMin: 0, yMax: 10, y1Min: 0, y1Max: 10 },
+    AxisLabel: {
+      yLabel: "Y Axis",
+      xLabel: "X Axis",
+      secondAxisLabel: "Secondary Axis",
+    },
+  },
+});
+
+const getSettings = () => {
+  const settings = {
+    dateFormat: store.get("dateFormat"),
+    ...store.get("yAxis"),
+    ...store.get("AxisLabel"),
+  };
+
+  mainWindow.webContents.on("did-finish-load", function () {
+    mainWindow.webContents.send("read-settings", settings);
+  });
+};
+
 // Application events handlers
 app.whenReady().then(() => {
   createWindow();
+  getSettings();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
+      getSettings();
     }
   });
 });
@@ -69,4 +97,23 @@ ipcMain.handle("load-file", async (_event, _args) => {
   const result = await getFileFromUser().catch((err) => err);
 
   return result;
+});
+
+ipcMain.handle("save-settings", async (_event, ...args) => {
+  const [
+    [dateFormat, yMin, yMax, yLabel, xLabel, y1Min, y1Max, secondAxisLabel],
+  ] = args;
+  store.set("dateFormat", dateFormat);
+  store.set("yAxis", { yMin, yMax, y1Min, y1Max });
+  store.set("AxisLabel", { yLabel, xLabel, secondAxisLabel });
+
+  const settings = {
+    dateFormat: store.get("dateFormat"),
+    ...store.get("yAxis"),
+    ...store.get("AxisLabel"),
+  };
+
+  console.log(settings);
+
+  return settings;
 });

@@ -1,23 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  FileContentStore,
+  AxisSettingsStore,
+  DataHeaderStore,
+} from "./store/stores";
+import { LineChart, AxisSettings } from "./components";
+import OpenFileButton from "./components/Buttons/OpenFileButton";
+import "./App.css";
+import { ButtonGroup, Stack } from "@mui/material";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <FileContentStore>
+        <AxisSettingsStore>
+          <DataHeaderStore>
+            <Stack spacing={5}>
+              <LineChart />
+              <ButtonGroup size="large" aria-label="large button group">
+                <OpenFileButton />
+                <AxisSettings />
+              </ButtonGroup>
+            </Stack>
+          </DataHeaderStore>
+        </AxisSettingsStore>
+      </FileContentStore>
     </div>
   );
 }

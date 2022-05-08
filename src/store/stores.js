@@ -1,6 +1,6 @@
 import React, { createContext, useReducer } from "react";
-import { fileContentReducer } from "./Reducer";
-import { secondAxisReducer } from "./reducers";
+import { fileContentReducer } from "./reducers";
+import { axisSettingsReducer, secondAxisReducer } from "./reducers";
 
 const dataInitialState = {
   content: "",
@@ -36,5 +36,31 @@ export const DataHeaderStore = ({ children }) => {
     <SecondAxisContext.Provider value={[state, dispatch]}>
       {children}
     </SecondAxisContext.Provider>
+  );
+};
+
+const axisSettingsInitialState = {
+  dateFormat: "%Y%m%d",
+  yMin: "0",
+  yMax: "10",
+  yLabel: "Y Axis",
+  xLabel: "X Axis",
+  y1Min: "0",
+  y1Max: "10",
+  secondAxisLabel: "Secondary Axis Label",
+};
+
+export const AxisSettingsContext = createContext(axisSettingsInitialState);
+
+export const AxisSettingsStore = ({ children }) => {
+  const [state, dispatch] = useReducer(
+    axisSettingsReducer,
+    axisSettingsInitialState
+  );
+
+  return (
+    <AxisSettingsContext.Provider value={[state, dispatch]}>
+      {children}
+    </AxisSettingsContext.Provider>
   );
 };

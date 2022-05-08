@@ -1,8 +1,18 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import { AxisBottom, AxisLeft, AxisRight, ColorLegend } from "./Chart";
+import {
+  AxisBottom,
+  AxisLeft,
+  AxisRight,
+  ColorLegend,
+  StatWidget,
+} from "./Chart";
 import { Card, CardContent, Grid, Stack } from "@mui/material";
-import { FileContentContext, SecondAxisContext } from "../store/stores";
+import {
+  AxisSettingsContext,
+  FileContentContext,
+  SecondAxisContext,
+} from "../store/stores";
 
 const width = 960;
 const height = 380;
@@ -47,6 +57,9 @@ function LineChart() {
   const [{ content }] = useContext(FileContentContext);
   const [{ keys, showSecondAxis, checkedState }, dispatch] =
     useContext(SecondAxisContext);
+  const [
+    { dateFormat, yMin, yMax, yLabel, xLabel, y1Min, y1Max, secondAxisLabel },
+  ] = useContext(AxisSettingsContext);
 
   // Component states
   const [parsedData, setParsedData] = useState([]);
@@ -55,6 +68,12 @@ function LineChart() {
   const [selectedPrimayData, setSelectedPrimaryData] = useState([]);
   const [selectedSecondaryData, setSelectedSecondaryData] = useState([]);
   const [currentZoomState, setCurrentZoomState] = useState(null);
+  const [brushExtent, setBrushExtent] = useState(null);
+  const [maxValue, setMaxValue] = useState(0);
+  const [minValue, setMinValue] = useState(0);
+  const [stdDev, setStdDev] = useState(0);
+  const [mean, setMean] = useState(0);
+  const [median, setMedian] = useState(0);
 
   // DOM references
   const pathPrimaryRef = useRef();
@@ -62,12 +81,15 @@ function LineChart() {
   const pathSelectedPrimaryRef = useRef();
   const pathSelectedSecondaryRef = useRef();
   const svgRef = useRef();
+  const brushRef = useRef();
+
+  const innerWidthOffset = showSecondAxis ? 50 : 0;
 
   // Parse loaded csv data.
   useEffect(() => {
     // console.log("Parsing Effect Runs");
     let d = d3.csvParse(content);
-    const parseDate = d3.timeParse("%Y%m%d");
+    const parseDate = d3.timeParse(dateFormat.trim());
     d.forEach((row) => {
       row.date = parseDate(row.date);
     });
@@ -84,7 +106,7 @@ function LineChart() {
 
     return () => undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, dateFormat]);
 
   // Modify our data structure.
   useEffect(() => {
@@ -138,8 +160,8 @@ function LineChart() {
 
   // Scale the y-axis by scaling the range between y-axis' min and max values
   // to the actual capacity range of the vertical axis
-  const getY0 = d3.scaleLinear().domain([0, 10]).range([innerHeight, 0]);
-  const getY1 = d3.scaleLinear().domain([0, 10]).range([innerHeight, 0]);
+  const getY0 = d3.scaleLinear().domain([yMin, yMax]).range([innerHeight, 0]);
+  const getY1 = d3.scaleLinear().domain([y1Min, y1Max]).range([innerHeight, 0]);
 
   // our color palette
   const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet1);
@@ -253,6 +275,47 @@ function LineChart() {
     });
   }, []);
 
+  // Configure brush event
+  // This effect also runs a lot.
+  useEffect(() => {
+    // console.log("Configure Brush Effect Runs");
+    const brush = d3.brushX().extent([
+      [0, 0],
+      [innerWidth, innerHeight],
+    ]);
+
+    brush(d3.select(brushRef.current));
+
+    brush.on("brush end", (e) => {
+      setBrushExtent(e.selection && e.selection.map(getX.invert));
+    });
+  }, [getX]);
+
+  // Filter out data outside the brush
+  // This effect runs a lot, too.
+  useEffect(() => {
+    // console.log("Filter data Effect Runs");
+    const dt = selectedPrimayData.length
+      ? selectedPrimayData
+      : selectedSecondaryData;
+
+    dt.forEach(({ id, values }) => {
+      let filteredData = [];
+      filteredData[id] = brushExtent
+        ? values.filter((d) => {
+            const date = xValue(d);
+            return date > brushExtent[0] && date < brushExtent[1];
+          })
+        : values;
+
+      setMaxValue(d3.max(filteredData[id], (t) => t.value));
+      setMinValue(d3.min(filteredData[id], (t) => t.value));
+      setStdDev(d3.deviation(filteredData[id], (t) => t.value));
+      setMean(d3.mean(filteredData[id], (t) => t.value));
+      setMedian(d3.median(filteredData[id], (t) => t.value));
+    });
+  }, [brushExtent, selectedPrimayData, selectedSecondaryData]);
+
   // Handle event when the user click the legend
   const handleLegendOnCLick = (_, domain) => {
     const selectedInPrimary = primaryAxisData.filter((d) => d.id === domain);
@@ -275,7 +338,9 @@ function LineChart() {
           <CardContent>
             <svg
               ref={svgRef}
-              viewBox={`0 0 ${innerWidth + margin.left + margin.right} 
+              viewBox={`0 0 ${
+                innerWidth + margin.left + margin.right + innerWidthOffset
+              } 
             ${innerHeight + margin.top + margin.bottom}`}
             >
               <g transform={`translate(${margin.right},${margin.top})`}>
@@ -292,7 +357,7 @@ function LineChart() {
                   y={innerHeight + xAxisLabelOffset}
                   textAnchor="middle"
                 >
-                  X Axis
+                  {xLabel}
                 </text>
                 <AxisLeft
                   yScale={getY0}
@@ -306,7 +371,7 @@ function LineChart() {
                     innerHeight / 2
                   }) rotate(-90)`}
                 >
-                  Y Axis
+                  {yLabel}
                 </text>
 
                 {showSecondAxis && (
@@ -323,7 +388,7 @@ function LineChart() {
                         innerHeight / 2
                       }) rotate(90)`}
                     >
-                      Secondary Axis
+                      {secondAxisLabel}
                     </text>
                   </>
                 )}
@@ -338,6 +403,7 @@ function LineChart() {
                 <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
                 <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
                 <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
+                <g ref={brushRef} className="brush" />
               </g>
             </svg>
           </CardContent>
@@ -355,6 +421,13 @@ function LineChart() {
             selectedSecondaryData={
               selectedSecondaryData.length && selectedSecondaryData[0].id
             }
+          />
+          <StatWidget
+            rangeMax={maxValue}
+            rangeMin={minValue}
+            stdDev={stdDev}
+            mean={mean}
+            median={median}
           />
         </Stack>
       </Grid>
