@@ -54,12 +54,14 @@ function LineChart() {
   const [secondaryAxisData, setSecondaryAxisData] = useState([]);
   const [selectedPrimayData, setSelectedPrimaryData] = useState([]);
   const [selectedSecondaryData, setSelectedSecondaryData] = useState([]);
+  const [currentZoomState, setCurrentZoomState] = useState(null);
 
   // DOM references
   const pathPrimaryRef = useRef();
   const pathSecondaryRef = useRef();
   const pathSelectedPrimaryRef = useRef();
   const pathSelectedSecondaryRef = useRef();
+  const svgRef = useRef();
 
   // Parse loaded csv data.
   useEffect(() => {
@@ -125,6 +127,14 @@ function LineChart() {
     .scaleTime()
     .domain(d3.extent(parsedData, (d) => d.date))
     .range([0, innerWidth]);
+
+  // Rescale x-axis when it's zoomed.
+  if (currentZoomState) {
+    const newXScale = currentZoomState
+      .rescaleX(getX)
+      .interpolate(d3.interpolateRound);
+    getX.domain(newXScale.domain());
+  }
 
   // Scale the y-axis by scaling the range between y-axis' min and max values
   // to the actual capacity range of the vertical axis
@@ -222,6 +232,27 @@ function LineChart() {
     getY1,
   ]);
 
+  // Configure zoom event
+  useEffect(() => {
+    // console.log("Configure Zoom Effect Runs");
+    const zoom = d3
+      .zoom()
+      // 1x to 35x zoom
+      .scaleExtent([1, 35])
+      // panning range
+      .translateExtent([
+        [0, 0],
+        [width, height],
+      ])
+      .filter((e) => e.ctrlKey);
+
+    zoom(d3.select(svgRef.current));
+
+    zoom.on("zoom", (e) => {
+      setCurrentZoomState(e.transform);
+    });
+  }, []);
+
   // Handle event when the user click the legend
   const handleLegendOnCLick = (_, domain) => {
     const selectedInPrimary = primaryAxisData.filter((d) => d.id === domain);
@@ -243,6 +274,7 @@ function LineChart() {
         <Card>
           <CardContent>
             <svg
+              ref={svgRef}
               viewBox={`0 0 ${innerWidth + margin.left + margin.right} 
             ${innerHeight + margin.top + margin.bottom}`}
             >
