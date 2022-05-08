@@ -82,6 +82,14 @@ function LineChart() {
   const pathSelectedSecondaryRef = useRef();
   const svgRef = useRef();
   const brushRef = useRef();
+  const tooltipFocusRef = useRef();
+  const focusCircleRef = useRef();
+  const focusLineXRef = useRef();
+  const focusLineYRef = useRef();
+  const textY1Ref = useRef();
+  const textY2Ref = useRef();
+  const textY3Ref = useRef();
+  const textY4Ref = useRef();
 
   const innerWidthOffset = showSecondAxis ? 50 : 0;
 
@@ -331,6 +339,54 @@ function LineChart() {
       : setSelectedSecondaryData([]);
   };
 
+  const handleTooltipOnMouseMove = (e) => {
+    const dt = selectedPrimayData.length
+      ? selectedPrimayData
+      : selectedSecondaryData;
+
+    dt.forEach(({ id, values }) => {
+      let bisect = [];
+      bisect[id] = d3.bisector((d) => d.date).left;
+
+      const x0 = getX.invert(d3.pointer(e, this)[0]);
+      const i = bisect[id](values, x0, 1);
+      const d0 = values[i - 1];
+      const d1 = values[i];
+      const d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+      const y = selectedPrimayData.length ? getY0(d.value) : getY1(d.value);
+      const x = getX(d.date);
+
+      const formatDate = d3.timeFormat("%B %A %-d, %Y");
+
+      d3.select(focusCircleRef.current).attr(
+        "transform",
+        `translate(${x},${y})`
+      );
+
+      d3.select(textY1Ref.current)
+        .attr("transform", `translate(${x},${y})`)
+        .text(d.value);
+
+      d3.select(textY2Ref.current)
+        .attr("transform", `translate(${x},${y})`)
+        .text(d.value);
+
+      d3.select(textY3Ref.current)
+        .attr("transform", `translate(${x},${y})`)
+        .text(formatDate(d.date));
+
+      d3.select(textY4Ref.current)
+        .attr("transform", `translate(${x},${y})`)
+        .text(formatDate(d.date));
+
+      d3.select(focusLineXRef.current)
+        .attr("transform", `translate(${x},${y})`)
+        .attr("y2", innerHeight - y);
+
+      d3.select(focusLineYRef.current).attr("transform", `translate(0,${y})`);
+    });
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={10}>
@@ -403,7 +459,70 @@ function LineChart() {
                 <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
                 <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
                 <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
-                <g ref={brushRef} className="brush" />
+                <g
+                  ref={tooltipFocusRef}
+                  className="focus"
+                  style={{ display: "none" }}
+                  clipPath="url(#clip)"
+                >
+                  <line
+                    ref={focusLineXRef}
+                    className="x"
+                    y1={0}
+                    y2={innerHeight}
+                    style={{ strokeDasharray: "2", opacity: "0.5" }}
+                    strokeWidth={0.5}
+                  />
+                  <line
+                    ref={focusLineYRef}
+                    className="y"
+                    x1={0}
+                    x2={innerWidth}
+                    style={{ strokeDasharray: "2", opacity: "0.5" }}
+                    strokeWidth={0.5}
+                  />
+                  <circle
+                    ref={focusCircleRef}
+                    className="y"
+                    r={2}
+                    style={{ fill: "none" }}
+                  />
+                  <text
+                    ref={textY1Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="-.3em"
+                  />
+                  <text
+                    ref={textY2Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="-.3em"
+                  />
+                  <text
+                    ref={textY3Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="1em"
+                  />
+                  <text
+                    ref={textY4Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="1em"
+                  />
+                </g>
+                <g
+                  ref={brushRef}
+                  className="brush"
+                  onMouseOver={() =>
+                    d3.select(tooltipFocusRef.current).style("display", null)
+                  }
+                  onMouseLeave={() =>
+                    d3.select(tooltipFocusRef.current).style("display", "none")
+                  }
+                  onMouseMove={handleTooltipOnMouseMove}
+                />
               </g>
             </svg>
           </CardContent>

@@ -50,7 +50,7 @@ const getFileFromUser = async () => {
 const store = new Store({
   configName: "chart-settings",
   defaults: {
-    dateFomat: "",
+    dateFomat: "%Y%m%d",
     yAxis: { yMin: 0, yMax: 10, y1Min: 0, y1Max: 10 },
     AxisLabel: {
       yLabel: "Y Axis",
