@@ -129,7 +129,7 @@ const AxisSettings = () => {
           {isSaved && (
             <Stack>
               <Alert icon={<Check fontSize="inherit" />} severity="success">
-                Saved!
+                Save was successful.
               </Alert>
             </Stack>
           )}
