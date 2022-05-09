@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { CardContent, Paper, Typography } from "@mui/material";
 import React from "react";
 
 const StatWidget = ({
@@ -8,7 +8,7 @@ const StatWidget = ({
   mean = 0,
   median = 0,
 }) => (
-  <Card variant="outlined">
+  <Paper elevation={0}>
     <CardContent>
       <Typography gutterBottom variant="h5" component="div">
         Statistics
@@ -19,7 +19,7 @@ const StatWidget = ({
       <Typography>Mean: {mean}</Typography>
       <Typography>Median: {median}</Typography>
     </CardContent>
-  </Card>
+  </Paper>
 );
 
 export default StatWidget;

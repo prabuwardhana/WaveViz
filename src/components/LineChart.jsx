@@ -7,7 +7,7 @@ import {
   ColorLegend,
   StatWidget,
 } from "./Chart";
-import { Box, Grid, Stack } from "@mui/material";
+import { Card, CardContent, Grid, Stack } from "@mui/material";
 import {
   AxisSettingsContext,
   FileContentContext,
@@ -90,8 +90,6 @@ function LineChart() {
   const focusLineYRef = useRef();
   const textY1Ref = useRef();
   const textY2Ref = useRef();
-  const textY3Ref = useRef();
-  const textY4Ref = useRef();
 
   const innerWidthOffset = showSecondAxis ? 50 : 0;
 
@@ -371,14 +369,6 @@ function LineChart() {
 
       d3.select(textY2Ref.current)
         .attr("transform", `translate(${x},${y})`)
-        .text(d.value);
-
-      d3.select(textY3Ref.current)
-        .attr("transform", `translate(${x},${y})`)
-        .text(formatDate(d.date));
-
-      d3.select(textY4Ref.current)
-        .attr("transform", `translate(${x},${y})`)
         .text(formatDate(d.date));
 
       d3.select(focusLineXRef.current)
@@ -390,167 +380,157 @@ function LineChart() {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, backgroundColor: "#fff", borderRadius: 1 }} p={3}>
-      <Grid container spacing={2}>
-        <Grid item xs={10}>
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${
-              innerWidth + margin.left + margin.right + innerWidthOffset
-            } 
+    <Card variant="outlined">
+      <CardContent>
+        <Grid container spacing={2}>
+          <Grid item xs={10}>
+            <svg
+              ref={svgRef}
+              viewBox={`0 0 ${
+                innerWidth + margin.left + margin.right + innerWidthOffset
+              } 
             ${innerHeight + margin.top + margin.bottom}`}
-          >
-            <g transform={`translate(${margin.right},${margin.top})`}>
-              <AxisBottom
-                xScale={getX}
-                innerHeight={innerHeight}
-                innerWidth={innerWidth}
-                tickFormat={xAxisTickFormat}
-                tickOffset={10}
-              />
-              <text
-                className="axis-label"
-                x={innerWidth / 2}
-                y={innerHeight + xAxisLabelOffset}
-                textAnchor="middle"
-              >
-                {xLabel}
-              </text>
-              <AxisLeft
-                yScale={getY0}
-                innerWidth={innerWidth}
-                tickOffset={10}
-              />
-              <text
-                className="axis-label"
-                textAnchor="middle"
-                transform={`translate(${-yAxisLabelOffset},${
-                  innerHeight / 2
-                }) rotate(-90)`}
-              >
-                {yLabel}
-              </text>
+            >
+              <g transform={`translate(${margin.right},${margin.top})`}>
+                <AxisBottom
+                  xScale={getX}
+                  innerHeight={innerHeight}
+                  innerWidth={innerWidth}
+                  tickFormat={xAxisTickFormat}
+                  tickOffset={10}
+                />
+                <text
+                  className="axis-label"
+                  x={innerWidth / 2}
+                  y={innerHeight + xAxisLabelOffset}
+                  textAnchor="middle"
+                >
+                  {xLabel}
+                </text>
+                <AxisLeft
+                  yScale={getY0}
+                  innerWidth={innerWidth}
+                  tickOffset={10}
+                />
+                <text
+                  className="axis-label"
+                  textAnchor="middle"
+                  transform={`translate(${-yAxisLabelOffset},${
+                    innerHeight / 2
+                  }) rotate(-90)`}
+                >
+                  {yLabel}
+                </text>
 
-              {showSecondAxis && (
-                <>
-                  <AxisRight
-                    yScale={getY1}
-                    innerWidth={innerWidth}
-                    tickOffset={10}
+                {showSecondAxis && (
+                  <>
+                    <AxisRight
+                      yScale={getY1}
+                      innerWidth={innerWidth}
+                      tickOffset={10}
+                    />
+                    <text
+                      className="axis-label"
+                      textAnchor="middle"
+                      transform={`translate(${innerWidth + yAxisLabelOffset},${
+                        innerHeight / 2
+                      }) rotate(90)`}
+                    >
+                      {secondAxisLabel}
+                    </text>
+                  </>
+                )}
+
+                <defs>
+                  <clipPath id="clip">
+                    <rect x={0} y={0} width={innerWidth} height={innerHeight} />
+                  </clipPath>
+                </defs>
+
+                <g ref={pathPrimaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
+                <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
+                <g
+                  ref={tooltipFocusRef}
+                  className="focus"
+                  style={{ display: "none" }}
+                  clipPath="url(#clip)"
+                >
+                  <line
+                    ref={focusLineXRef}
+                    className="x"
+                    y1={0}
+                    y2={innerHeight}
+                    style={{ strokeDasharray: "2", opacity: "0.5" }}
+                    strokeWidth={0.5}
+                  />
+                  <line
+                    ref={focusLineYRef}
+                    className="y"
+                    x1={0}
+                    x2={innerWidth}
+                    style={{ strokeDasharray: "2", opacity: "0.5" }}
+                    strokeWidth={0.5}
+                  />
+                  <circle
+                    ref={focusCircleRef}
+                    className="y"
+                    r={2}
+                    style={{ fill: "none" }}
                   />
                   <text
-                    className="axis-label"
-                    textAnchor="middle"
-                    transform={`translate(${innerWidth + yAxisLabelOffset},${
-                      innerHeight / 2
-                    }) rotate(90)`}
-                  >
-                    {secondAxisLabel}
-                  </text>
-                </>
-              )}
-
-              <defs>
-                <clipPath id="clip">
-                  <rect x={0} y={0} width={innerWidth} height={innerHeight} />
-                </clipPath>
-              </defs>
-
-              <g ref={pathPrimaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSecondaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSelectedPrimaryRef} clipPath="url(#clip)"></g>
-              <g ref={pathSelectedSecondaryRef} clipPath="url(#clip)"></g>
-              <g
-                ref={tooltipFocusRef}
-                className="focus"
-                style={{ display: "none" }}
-                clipPath="url(#clip)"
-              >
-                <line
-                  ref={focusLineXRef}
-                  className="x"
-                  y1={0}
-                  y2={innerHeight}
-                  style={{ strokeDasharray: "2", opacity: "0.5" }}
-                  strokeWidth={0.5}
-                />
-                <line
-                  ref={focusLineYRef}
-                  className="y"
-                  x1={0}
-                  x2={innerWidth}
-                  style={{ strokeDasharray: "2", opacity: "0.5" }}
-                  strokeWidth={0.5}
-                />
-                <circle
-                  ref={focusCircleRef}
-                  className="y"
-                  r={2}
-                  style={{ fill: "none" }}
-                />
-                <text
-                  ref={textY1Ref}
-                  className="tooltip-text"
-                  dx="8"
-                  dy="-.3em"
-                />
-                <text
-                  ref={textY2Ref}
-                  className="tooltip-text"
-                  dx="8"
-                  dy="-.3em"
-                />
-                <text
-                  ref={textY3Ref}
-                  className="tooltip-text"
-                  dx="8"
-                  dy="1em"
-                />
-                <text
-                  ref={textY4Ref}
-                  className="tooltip-text"
-                  dx="8"
-                  dy="1em"
+                    ref={textY1Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="-.3em"
+                  />
+                  <text
+                    ref={textY2Ref}
+                    className="tooltip-text"
+                    dx="8"
+                    dy="1em"
+                  />
+                </g>
+                <g
+                  ref={brushRef}
+                  className="brush"
+                  onMouseOver={() =>
+                    d3.select(tooltipFocusRef.current).style("display", null)
+                  }
+                  onMouseLeave={() =>
+                    d3.select(tooltipFocusRef.current).style("display", "none")
+                  }
+                  onMouseMove={handleTooltipOnMouseMove}
                 />
               </g>
-              <g
-                ref={brushRef}
-                className="brush"
-                onMouseOver={() =>
-                  d3.select(tooltipFocusRef.current).style("display", null)
+            </svg>
+          </Grid>
+          <Grid item xs={2}>
+            <Stack spacing={2}>
+              <ColorLegend
+                tickSize={25}
+                colorScale={color}
+                onSelected={handleLegendOnCLick}
+                selectedPrimayData={
+                  selectedPrimayData.length && selectedPrimayData[0].id
                 }
-                onMouseLeave={() =>
-                  d3.select(tooltipFocusRef.current).style("display", "none")
+                selectedSecondaryData={
+                  selectedSecondaryData.length && selectedSecondaryData[0].id
                 }
-                onMouseMove={handleTooltipOnMouseMove}
               />
-            </g>
-          </svg>
+              <StatWidget
+                rangeMax={maxValue}
+                rangeMin={minValue}
+                stdDev={stdDev}
+                mean={mean}
+                median={median}
+              />
+            </Stack>
+          </Grid>
         </Grid>
-        <Grid item xs={2}>
-          <Stack spacing={2}>
-            <ColorLegend
-              tickSize={25}
-              colorScale={color}
-              onSelected={handleLegendOnCLick}
-              selectedPrimayData={
-                selectedPrimayData.length && selectedPrimayData[0].id
-              }
-              selectedSecondaryData={
-                selectedSecondaryData.length && selectedSecondaryData[0].id
-              }
-            />
-            <StatWidget
-              rangeMax={maxValue}
-              rangeMin={minValue}
-              stdDev={stdDev}
-              mean={mean}
-              median={median}
-            />
-          </Stack>
-        </Grid>
-      </Grid>
-    </Box>
+      </CardContent>
+    </Card>
   );
 }
 

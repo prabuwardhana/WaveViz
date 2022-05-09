@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { CardContent, Paper, Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 
@@ -10,7 +10,7 @@ const ColorLegend = ({
   selectedPrimayData,
   selectedSecondaryData,
 }) => (
-  <Card variant="outlined">
+  <Paper elevation={0}>
     <CardContent>
       <Typography gutterBottom variant="h5" component="div">
         Chart Legend
@@ -61,7 +61,7 @@ const ColorLegend = ({
         </Typography>
       )}
     </CardContent>
-  </Card>
+  </Paper>
 );
 
 export default ColorLegend;
