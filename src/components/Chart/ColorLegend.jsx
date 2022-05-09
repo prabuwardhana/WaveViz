@@ -10,7 +10,7 @@ const ColorLegend = ({
   selectedPrimayData,
   selectedSecondaryData,
 }) => (
-  <Card>
+  <Card variant="outlined">
     <CardContent>
       <Typography gutterBottom variant="h5" component="div">
         Chart Legend
@@ -44,7 +44,7 @@ const ColorLegend = ({
               />
               <Typography
                 sx={{
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: `${isSelected ? 600 : 400}`,
                 }}
                 color="text.secondary"

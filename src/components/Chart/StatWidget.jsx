@@ -8,10 +8,10 @@ const StatWidget = ({
   mean = 0,
   median = 0,
 }) => (
-  <Card>
+  <Card variant="outlined">
     <CardContent>
       <Typography gutterBottom variant="h5" component="div">
-        Stats Detail
+        Statistics
       </Typography>
       <Typography>Max: {rangeMax}</Typography>
       <Typography>Min: {rangeMin}</Typography>
