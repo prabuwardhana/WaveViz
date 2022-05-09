@@ -12,7 +12,7 @@ import {
   AxisSettingsContext,
   FileContentContext,
   SecondAxisContext,
-} from "../store/stores";
+} from "../store/contexts";
 
 const width = 960;
 const height = 380;

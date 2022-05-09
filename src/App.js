@@ -2,7 +2,7 @@ import {
   FileContentStore,
   AxisSettingsStore,
   DataHeaderStore,
-} from "./store/stores";
+} from "./store/contexts";
 import { LineChart, AxisSettings } from "./components";
 import OpenFileButton from "./components/Buttons/OpenFileButton";
 import "./App.css";

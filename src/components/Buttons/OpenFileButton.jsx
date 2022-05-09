@@ -1,7 +1,7 @@
 import { FolderOpen } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import React, { useContext } from "react";
-import { FileContentContext } from "../../store/stores";
+import { FileContentContext } from "../../store/contexts";
 
 const OpenFileButton = () => {
   const [, dispatch] = useContext(FileContentContext);

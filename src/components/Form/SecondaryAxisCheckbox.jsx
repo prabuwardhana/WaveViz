@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import CheckboxGroup from "./CheckboxGroup";
-import { SecondAxisContext } from "../../store/stores";
+import { SecondAxisContext } from "../../store/contexts";
 import { FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
 
 const SecondaryAxisCheckbox = ({ keys, name, value, labelText }) => {

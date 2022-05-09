@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import TriggerButton from "./Buttons/TriggerButton";
 import Modal from "./Modal/Modal";
 import AxisSettingsForm from "./Form/AxisSettingsForm";
-import { AxisSettingsContext } from "../store/stores";
+import { AxisSettingsContext } from "../store/contexts";
 import { Alert, Stack } from "@mui/material";
 import { Check } from "@mui/icons-material";
 

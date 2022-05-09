@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import SecondaryAxisCheckbox from "./SecondaryAxisCheckbox";
-import { SecondAxisContext } from "../../store/stores";
+import { SecondAxisContext } from "../../store/contexts";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { Save } from "@mui/icons-material";
 
