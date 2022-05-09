@@ -38,8 +38,8 @@ const ColorLegend = ({
                 sx={{
                   backgroundColor: `${colorScale(domainValue)}`,
                   width: `${tickSize}px`,
-                  height: `${tickSize}px`,
-                  opacity: `${isSelected ? 1 : 0.3}`,
+                  height: `${tickSize / 4}px`,
+                  opacity: `${isSelected ? 1 : 0.5}`,
                 }}
               />
               <Typography

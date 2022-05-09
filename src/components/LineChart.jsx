@@ -206,7 +206,7 @@ function LineChart() {
         .attr("fill", "none")
         .attr("stroke-width", 1)
         .attr("stroke", (d) => color(d.id))
-        .attr("opacity", 0.3)
+        .attr("opacity", 0.5)
         .attr("d", (d) => {
           return d3
             .line()
@@ -242,7 +242,7 @@ function LineChart() {
           .attr("fill", "none")
           .attr("stroke-width", 1)
           .attr("stroke", (d) => color(d.id))
-          .attr("opacity", 0.3)
+          .attr("opacity", 0.5)
           .attr("d", (d) => {
             return d3
               .line()
