@@ -1,7 +1,7 @@
 import {
-  FileContentStore,
-  AxisSettingsStore,
-  DataHeaderStore,
+  FileContentContextProvider,
+  AxisSettingsContextProvider,
+  SecondAxisContextProvider,
 } from "./store/contexts";
 import { LineChart, AxisSettings } from "./components";
 import OpenFileButton from "./components/Buttons/OpenFileButton";
@@ -11,9 +11,9 @@ import { ButtonGroup, Stack } from "@mui/material";
 function App() {
   return (
     <div className="App">
-      <FileContentStore>
-        <AxisSettingsStore>
-          <DataHeaderStore>
+      <FileContentContextProvider>
+        <AxisSettingsContextProvider>
+          <SecondAxisContextProvider>
             <Stack spacing={5}>
               <LineChart />
               <ButtonGroup size="large" aria-label="large button group">
@@ -21,9 +21,9 @@ function App() {
                 <AxisSettings />
               </ButtonGroup>
             </Stack>
-          </DataHeaderStore>
-        </AxisSettingsStore>
-      </FileContentStore>
+          </SecondAxisContextProvider>
+        </AxisSettingsContextProvider>
+      </FileContentContextProvider>
     </div>
   );
 }

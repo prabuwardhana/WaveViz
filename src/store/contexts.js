@@ -8,7 +8,7 @@ const dataInitialState = {
 
 export const FileContentContext = createContext(dataInitialState);
 
-export const FileContentStore = ({ children }) => {
+export const FileContentContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(fileContentReducer, dataInitialState);
 
   return (
@@ -26,7 +26,7 @@ const secondAxisInitialState = {
 
 export const SecondAxisContext = createContext(secondAxisInitialState);
 
-export const DataHeaderStore = ({ children }) => {
+export const SecondAxisContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(
     secondAxisReducer,
     secondAxisInitialState
@@ -52,7 +52,7 @@ const axisSettingsInitialState = {
 
 export const AxisSettingsContext = createContext(axisSettingsInitialState);
 
-export const AxisSettingsStore = ({ children }) => {
+export const AxisSettingsContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(
     axisSettingsReducer,
     axisSettingsInitialState
